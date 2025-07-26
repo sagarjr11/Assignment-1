@@ -5,14 +5,10 @@ set -e                           # Exit immediately if a command exits with a no
 echo " ------------------Deployment to staging...---------------------------------"
 
 # Stop existing container if running
-
-EXISTING_CONTAINER=$(docker ps -q --filter "ancestor=yourdockerhubusername/ci-cd-nodejs-app:latest")
-if [ -n "$EXISTING_CONTAINER" ]; then
-    echo "Stopping existing container..."
-    docker stop $EXISTING_CONTAINER
-fi
+docker stop nodejs-container || true
+docker rm nodejs-container || true
 
 # Run the new container
-docker run -d --rm -p 3000:3000 --name nodejs-app yourdockerhubusername/ci-cd-nodejs-app:latest
+docker run -d --rm -p 3000:3000 --name nodejs-app $1
 
 echo "App deployed and running at http://localhost:3000"
