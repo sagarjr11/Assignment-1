@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     environment {
-        GIT_REPO_URL = 'https://github.com/yourusername/nodejs-ci-cd.git'
+        GIT_REPO_URL = 'https://github.com/sagarjr11/Assignment-1.git'
         IMAGE_TAG = "v1.${BUILD_ID}"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git "${GIT_REPO_URL}"
-            }
+                git branch: 'main', url: "${GIT_REPO_URL}"
+
         }
 
         stage('Install Dependencies') {
