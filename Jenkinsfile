@@ -49,7 +49,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to staging') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
@@ -66,10 +66,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Deployment Successful!'
+            echo 'Deployment Successful!'
         }
         failure {
-            echo '❌ Deployment Failed!'
+            echo ' Deployment Failed!'
         }
     }
 }
