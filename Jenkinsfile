@@ -32,8 +32,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                  sh '''
-            docker build -t $DOCKER_IMAGE:$IMAGE_TAG .                //dockerhubusername/node-js-app:v1.45 Image Taging
-            docker tag $DOCKER_IMAGE:$IMAGE_TAG $DOCKER_IMAGE:latest  //dockerhubusername/node-js-app:latest Final Tag
+            docker build -t $DOCKER_IMAGE:$IMAGE_TAG .                #Tag: dockerhubusername/node-js-app:v1.45 Image Taging
+            docker tag $DOCKER_IMAGE:$IMAGE_TAG $DOCKER_IMAGE:latest  #Tag: dockerhubusername/node-js-app:latest Final Tag
         ''
             }
         }
@@ -49,7 +49,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'chmod +x deploy.sh && ./deploy.sh'
+                sh 'chmod +x Deploy_script.sh && ./Deploy_script.sh'
             }
         }
     }
