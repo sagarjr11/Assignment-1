@@ -1,17 +1,20 @@
 pipeline {
-    agent any
+    agent any   //you can change name of your slave node and paste it here to run jobs on the node.
 
     environment {
-        DOCKER_IMAGE = "yourdockerhubusername/nodejs-ci-cd:latest"
+        GIT_REPO_URL = 'https://github.com/yourusername/nodejs-ci-cd.git'
+        DOCKERHUB_USERNAME = credentials('dockerhub-username')  // Jenkins credential (type: "Username")
+        DOCKER_IMAGE = "${DOCKERHUB_USERNAME}/node-js-app"
+        IMAGE_TAG = "v1.${BUILD_ID}"
+
     }
 
     stages {
-        stage('Checkout') {
+        stage(' Git Checkout') {
             steps {
-                git 'https://github.com/yourusername/nodejs-ci-cd.git'
+                git "${GIT_REPO_URL}"
             }
         }
-
         stage('Install Dependencies') {
             steps {
                 dir('app') {
@@ -19,7 +22,6 @@ pipeline {
                 }
             }
         }
-
         stage('Run Unit Tests') {
             steps {
                 dir('app') {
@@ -27,13 +29,14 @@ pipeline {
                 }
             }
         }
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                 sh '''
+            docker build -t $DOCKER_IMAGE:$IMAGE_TAG .                //dockerhubusername/node-js-app:v1.45 Image Taging
+            docker tag $DOCKER_IMAGE:$IMAGE_TAG $DOCKER_IMAGE:latest  //dockerhubusername/node-js-app:latest Final Tag
+        ''
             }
         }
-
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -44,21 +47,18 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy') {
             steps {
                 sh 'chmod +x deploy.sh && ./deploy.sh'
             }
         }
     }
-
     post {
         success {
-            echo '✅ Deployment Successful!'
+            echo ' Deployment Successful!'
         }
         failure {
-            echo '❌ Deployment Failed!'
+            echo ' Deployment Failed!'
         }
     }
 }
-
