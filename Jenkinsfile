@@ -50,7 +50,9 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'chmod +x Deploy_script.sh && ./Deploy_script.sh'
+               sh "chmod +x Deploy_script.sh"
+               sh "./Deploy_script.sh ${DOCKER_USER}/${imageName}:latest"
+
             }
         }
     }
