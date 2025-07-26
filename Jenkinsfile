@@ -4,13 +4,14 @@ pipeline {
     environment {
         GIT_REPO_URL = 'https://github.com/sagarjr11/Assignment-1.git'
         IMAGE_TAG = "v1.${BUILD_ID}"
+        IMAGE_NAME = "node-js-app"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: "${GIT_REPO_URL}"
-
+            }
         }
 
         stage('Install Dependencies') {
@@ -33,8 +34,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     script {
-                        def image = "${DOCKER_USER}/node-js-app:${IMAGE_TAG}"
-                        def latest = "${DOCKER_USER}/node-js-app:latest"
+                        def image = "${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                        def latest = "${DOCKER_USER}/${IMAGE_NAME}:latest"
 
                         sh """
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
@@ -50,9 +51,15 @@ pipeline {
 
         stage('Deploy') {
             steps {
-               sh "chmod +x Deploy_script.sh"
-               sh "./Deploy_script.sh ${DOCKER_USER}/${imageName}:latest"
-
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        def latest = "${DOCKER_USER}/${IMAGE_NAME}:latest"
+                        sh """
+                            chmod +x Deploy_script.sh
+                            ./Deploy_script.sh ${latest}
+                        """
+                    }
+                }
             }
         }
     }
